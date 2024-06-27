@@ -1,0 +1,222 @@
+<UVI4>
+    <Program Name="Program" Bypass="0" Gain="1" Pan="0" DisplayName="basic-sequence" TransposeOctaves="0" TransposeSemiTones="0" OutputName="" Polyphony="16" NotePolyphony="0" ProgramPath="C:/development/falcon/basic-sequence/basic-sequence.uvip" LoopProgram="0" Streaming="1" BypassInsertFX="0">
+        <ControlSignalSources/>
+        <EventProcessors>
+            <ScriptProcessor Name="EventProcessor0" Bypass="0" gain1="1" gain2="1" gain3="1" gain4="1.0527344" gain5="1" Ratio="1" lowPass="5000" highPass="20" API_version="21">
+                <Properties ScriptPath="./../arpecho/main.lua"/>
+                <script><![CDATA[-- Creates user interface from the ui module.
+local ui = require("ui");
+ui:CreateUserInterface();
+
+function onNote(e)
+
+    -- Echo ratio.
+    local ratio = ui.ratio;
+
+    -- Duration of a beat.
+    local beatDuration = getBeatDuration();
+
+    -- Table which represents an echo event.
+    local noteEcho = {
+        note = e.note - 7, -- Initilized to frequency of first echo.
+        velocity = e.velocity, -- Initilized to velocity of first echo.
+        duration = 100,
+        layer = 2 -- Each echo has a different layer with a different wave index.
+    };
+
+    -- Initial note.
+    playNote({note = e.note, 
+    velocity = e.velocity, 
+    duration = 100,
+    layer = 1});
+
+    wait(beatDuration / ratio);
+
+    -- Variables used within while loop.
+    local counter = false;
+
+    while noteEcho.note > 0 and noteEcho.layer < 6 do
+
+        playNote(noteEcho);
+
+        -- When counter is false five half steps will be 
+        -- subtracted from frequency. Else seven steps are subtracted.
+        if counter then
+            
+            noteEcho.note = noteEcho.note - 7;
+            counter = false;
+        else
+
+            noteEcho.note = noteEcho.note - 5;
+            counter = true;
+        end
+
+        -- Layer is changed.
+        noteEcho.layer = noteEcho.layer + 1;
+
+        wait(beatDuration / ratio);
+    end
+end
+
+-- Save data for modules is stored with this callback.
+function onSave()
+
+    local saveData = { ui = ui:Save() }
+
+    return saveData;
+end
+
+-- Loads saved data into modules.
+function onLoad(saveData)
+
+    ui:Load(saveData.ui);
+end
+]]></script>
+                <ScriptData/>
+                <state><![CDATA[{"ui":{"menuValue":1}}]]></state>
+            </ScriptProcessor>
+        </EventProcessors>
+        <Inserts>
+            <MoogFilter Name="InsertFX0" Bypass="0" Freq="5000" Q="0" KeyTracking="0"/>
+            <DigitalFilter Name="InsertFX1" Bypass="0" Type="1" Slope="1" Freq="20" KeyTracking="0" Spread="0" Q="0.70710677" Gain="0" Bandwidth="1"/>
+        </Inserts>
+        <Layers>
+            <Layer Name="Layer 0" Bypass="0" Gain="1" Pan="0" Mute="0" MidiMute="0" Solo="0" DisplayName="Layer 1" OutputName="" LowKey="0" HighKey="127" CustomPolyphony="0" PlayMode="0" PortamentoTime="0.029999999" PortamentoCurve="0" PortamentoMode="0" NumVoicesPerNote="1" VelocityCurve="0" BypassInsertFX="0">
+                <Properties Color="ff02b0ff"/>
+                <ControlSignalSources/>
+                <BusRouters/>
+                <Keygroups>
+                    <Keygroup Name="Keygroup 0" Bypass="0" Gain="1.1424044" Pan="0.2109375" DisplayName="Keygroup 1" OutputName="" ExclusiveGroup="0" LowKey="0" HighKey="127" LowVelocity="1" HighVelocity="127" LowKeyFade="0" HighKeyFade="0" LowVelocityFade="0" HighVelocityFade="0" FadeCurve="2" TriggerMode="0" TriggerSync="0" TriggerRule="0" LatchTrigger="0" FXPostGain="0" BypassInsertFX="0">
+                        <Connections>
+                            <SignalConnection Name="AmpEnvMod" Ratio="1" Source="Amp. Env" Destination="Gain" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                        </Connections>
+                        <ControlSignalSources>
+                            <AnalogADSR Name="Amp. Env" Bypass="0" AttackTime="0.022866178" DecayTime="0.0011850487" KeyToDecay="0" KeyToAttack="0" VelToDecay="0" Punch="0" VelToAttack="0" DynamicRange="20" SustainLevel="0.76959985" ReleaseTime="0.070141718" TriggerMode="0" InvertVelocity="0" AttackDecayMode="0" DisplayName="Amp. Env">
+                                <Properties PresetPath=""/>
+                            </AnalogADSR>
+                        </ControlSignalSources>
+                        <BusRouters/>
+                        <Oscillators>
+                            <WaveTableOscillator Name="Oscillator" Bypass="0" WavetablePath="$FalconResources.ufs/Samples/Wavetables/X-Math/Pulse Sweep.wav" StartPhase="0" PhaseDistortionAmount="0" PhaseDistortionMode="3" Spread="0.1" DetuneMode="0" WaveIndex="0" WaveIndexSpread="0" StereoSpread="0.1" StereoSpreadMode="1" NumOscs="1" FadeMipMap="0" FadeWaveIndex="1" Stereo="0" PhaseSpread="1" EnableFM="1" FMDepth="0.1" FMRatio="0" FMRatioFine="0" FMRatioMode="1" FMFreq="0.1" FMFixedFreq="0" FMFreqMultiplier="3" CoarseTune="0" FineTune="0" Gain="1" Pitch="0" NoteTracking="1" BaseNote="48" DisplayName="Oscillator 1">
+                                <Connections>
+                                    <SignalConnection Name="PitchBendMod" Ratio="2" Source="@PitchBend" Destination="Pitch" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                                </Connections>
+                                <Properties PresetPath=""/>
+                            </WaveTableOscillator>
+                        </Oscillators>
+                    </Keygroup>
+                </Keygroups>
+            </Layer>
+            <Layer Name="Layer 1" Bypass="0" Gain="1" Pan="0" Mute="0" MidiMute="0" Solo="0" DisplayName="Layer 2" OutputName="" LowKey="0" HighKey="127" CustomPolyphony="0" PlayMode="0" PortamentoTime="0.029999999" PortamentoCurve="0" PortamentoMode="0" NumVoicesPerNote="1" VelocityCurve="0" BypassInsertFX="0">
+                <Properties Color="ffa398e8"/>
+                <ControlSignalSources/>
+                <BusRouters/>
+                <Keygroups>
+                    <Keygroup Name="Keygroup 0" Bypass="0" Gain="1.1424044" Pan="0" DisplayName="Keygroup 1" OutputName="" ExclusiveGroup="0" LowKey="0" HighKey="127" LowVelocity="1" HighVelocity="127" LowKeyFade="0" HighKeyFade="0" LowVelocityFade="0" HighVelocityFade="0" FadeCurve="2" TriggerMode="0" TriggerSync="0" TriggerRule="0" LatchTrigger="0" FXPostGain="0" BypassInsertFX="0">
+                        <Connections>
+                            <SignalConnection Name="AmpEnvMod" Ratio="1" Source="Amp. Env" Destination="Gain" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                        </Connections>
+                        <ControlSignalSources>
+                            <AnalogADSR Name="Amp. Env" Bypass="0" AttackTime="0.022866178" DecayTime="0.0011850487" KeyToDecay="0" KeyToAttack="0" VelToDecay="0" Punch="0" VelToAttack="0" DynamicRange="20" SustainLevel="0.76959985" ReleaseTime="0.070141718" TriggerMode="0" InvertVelocity="0" AttackDecayMode="0" DisplayName="Amp. Env">
+                                <Properties PresetPath=""/>
+                            </AnalogADSR>
+                        </ControlSignalSources>
+                        <BusRouters/>
+                        <Oscillators>
+                            <WaveTableOscillator Name="Oscillator" Bypass="0" WavetablePath="$FalconResources.ufs/Samples/Wavetables/X-Math/Pulse Sweep.wav" StartPhase="0" PhaseDistortionAmount="0" PhaseDistortionMode="3" Spread="0.1" DetuneMode="0" WaveIndex="0.0099999998" WaveIndexSpread="0" StereoSpread="0.1" StereoSpreadMode="1" NumOscs="1" FadeMipMap="0" FadeWaveIndex="1" Stereo="0" PhaseSpread="1" EnableFM="1" FMDepth="0.1" FMRatio="0" FMRatioFine="0" FMRatioMode="1" FMFreq="0.1" FMFixedFreq="0" FMFreqMultiplier="3" CoarseTune="0" FineTune="0" Gain="1" Pitch="0" NoteTracking="1" BaseNote="48" DisplayName="Oscillator 1">
+                                <Connections>
+                                    <SignalConnection Name="PitchBendMod" Ratio="2" Source="@PitchBend" Destination="Pitch" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                                </Connections>
+                                <Properties PresetPath=""/>
+                            </WaveTableOscillator>
+                        </Oscillators>
+                    </Keygroup>
+                </Keygroups>
+            </Layer>
+            <Layer Name="Layer 2" Bypass="0" Gain="1" Pan="0" Mute="0" MidiMute="0" Solo="0" DisplayName="Layer 3" OutputName="" LowKey="0" HighKey="127" CustomPolyphony="0" PlayMode="0" PortamentoTime="0.029999999" PortamentoCurve="0" PortamentoMode="0" NumVoicesPerNote="1" VelocityCurve="0" BypassInsertFX="0">
+                <Properties Color="ffbe88cc"/>
+                <ControlSignalSources/>
+                <BusRouters/>
+                <Keygroups>
+                    <Keygroup Name="Keygroup 0" Bypass="0" Gain="1.1424044" Pan="0" DisplayName="Keygroup 1" OutputName="" ExclusiveGroup="0" LowKey="0" HighKey="127" LowVelocity="1" HighVelocity="127" LowKeyFade="0" HighKeyFade="0" LowVelocityFade="0" HighVelocityFade="0" FadeCurve="2" TriggerMode="0" TriggerSync="0" TriggerRule="0" LatchTrigger="0" FXPostGain="0" BypassInsertFX="0">
+                        <Connections>
+                            <SignalConnection Name="AmpEnvMod" Ratio="1" Source="Amp. Env" Destination="Gain" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                        </Connections>
+                        <ControlSignalSources>
+                            <AnalogADSR Name="Amp. Env" Bypass="0" AttackTime="0.022866178" DecayTime="0.0011850487" KeyToDecay="0" KeyToAttack="0" VelToDecay="0" Punch="0" VelToAttack="0" DynamicRange="20" SustainLevel="0.76959985" ReleaseTime="0.070141718" TriggerMode="0" InvertVelocity="0" AttackDecayMode="0" DisplayName="Amp. Env">
+                                <Properties PresetPath=""/>
+                            </AnalogADSR>
+                        </ControlSignalSources>
+                        <BusRouters/>
+                        <Oscillators>
+                            <WaveTableOscillator Name="Oscillator" Bypass="0" WavetablePath="$FalconResources.ufs/Samples/Wavetables/X-Math/Pulse Sweep.wav" StartPhase="0" PhaseDistortionAmount="0" PhaseDistortionMode="3" Spread="0.1" DetuneMode="0" WaveIndex="0.02" WaveIndexSpread="0" StereoSpread="0.1" StereoSpreadMode="1" NumOscs="1" FadeMipMap="0" FadeWaveIndex="1" Stereo="0" PhaseSpread="1" EnableFM="1" FMDepth="0.1" FMRatio="0" FMRatioFine="0" FMRatioMode="1" FMFreq="0.1" FMFixedFreq="0" FMFreqMultiplier="3" CoarseTune="0" FineTune="0" Gain="1" Pitch="0" NoteTracking="1" BaseNote="48" DisplayName="Oscillator 1">
+                                <Connections>
+                                    <SignalConnection Name="PitchBendMod" Ratio="2" Source="@PitchBend" Destination="Pitch" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                                </Connections>
+                                <Properties PresetPath=""/>
+                            </WaveTableOscillator>
+                        </Oscillators>
+                    </Keygroup>
+                </Keygroups>
+            </Layer>
+            <Layer Name="Layer 3" Bypass="0" Gain="1" Pan="0" Mute="0" MidiMute="0" Solo="0" DisplayName="Layer 4" OutputName="" LowKey="0" HighKey="127" CustomPolyphony="0" PlayMode="0" PortamentoTime="0.029999999" PortamentoCurve="0" PortamentoMode="0" NumVoicesPerNote="1" VelocityCurve="0" BypassInsertFX="0">
+                <Properties Color="ffca7d6d"/>
+                <ControlSignalSources/>
+                <BusRouters/>
+                <Keygroups>
+                    <Keygroup Name="Keygroup 0" Bypass="0" Gain="1.1424044" Pan="0" DisplayName="Keygroup 1" OutputName="" ExclusiveGroup="0" LowKey="0" HighKey="127" LowVelocity="1" HighVelocity="127" LowKeyFade="0" HighKeyFade="0" LowVelocityFade="0" HighVelocityFade="0" FadeCurve="2" TriggerMode="0" TriggerSync="0" TriggerRule="0" LatchTrigger="0" FXPostGain="0" BypassInsertFX="0">
+                        <Connections>
+                            <SignalConnection Name="AmpEnvMod" Ratio="1" Source="Amp. Env" Destination="Gain" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                        </Connections>
+                        <ControlSignalSources>
+                            <AnalogADSR Name="Amp. Env" Bypass="0" AttackTime="0.022866178" DecayTime="0.0011850487" KeyToDecay="0" KeyToAttack="0" VelToDecay="0" Punch="0" VelToAttack="0" DynamicRange="20" SustainLevel="0.76959985" ReleaseTime="0.070141718" TriggerMode="0" InvertVelocity="0" AttackDecayMode="0" DisplayName="Amp. Env">
+                                <Properties PresetPath=""/>
+                            </AnalogADSR>
+                        </ControlSignalSources>
+                        <BusRouters/>
+                        <Oscillators>
+                            <WaveTableOscillator Name="Oscillator" Bypass="0" WavetablePath="$FalconResources.ufs/Samples/Wavetables/X-Math/Pulse Sweep.wav" StartPhase="0" PhaseDistortionAmount="0" PhaseDistortionMode="3" Spread="0.1" DetuneMode="0" WaveIndex="0.029999999" WaveIndexSpread="0" StereoSpread="0.1" StereoSpreadMode="1" NumOscs="1" FadeMipMap="0" FadeWaveIndex="1" Stereo="0" PhaseSpread="1" EnableFM="1" FMDepth="0.1" FMRatio="0" FMRatioFine="0" FMRatioMode="1" FMFreq="0.1" FMFixedFreq="0" FMFreqMultiplier="3" CoarseTune="0" FineTune="0" Gain="1.0527344" Pitch="0" NoteTracking="1" BaseNote="60" DisplayName="Oscillator 1">
+                                <Connections>
+                                    <SignalConnection Name="PitchBendMod" Ratio="2" Source="@PitchBend" Destination="Pitch" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                                </Connections>
+                                <Properties PresetPath=""/>
+                            </WaveTableOscillator>
+                        </Oscillators>
+                    </Keygroup>
+                </Keygroups>
+            </Layer>
+            <Layer Name="Layer 4" Bypass="0" Gain="1" Pan="0" Mute="0" MidiMute="0" Solo="0" DisplayName="Layer 5" OutputName="" LowKey="0" HighKey="127" CustomPolyphony="0" PlayMode="0" PortamentoTime="0.029999999" PortamentoCurve="0" PortamentoMode="0" NumVoicesPerNote="1" VelocityCurve="0" BypassInsertFX="0">
+                <Properties Color="ffdb894c"/>
+                <ControlSignalSources/>
+                <Inserts>
+                    <DualDelayX Name="InsertFX0" Bypass="0" SyncToHost="1" TapeSaturation="0" TapeDrive="0" TapeWarmth="0.5" Reflection="0" DelayTime="1" LowCut="20" HighCut="9125.3838" PeakFreq="1000" PeakGain="0" PeakQ="1" PeakCompensation="1" Feedback="0.29999998" Mix="0.59999996" Rotation="0" InputWidth="0" OutputWidth="0" DelayRatio="0" FeedbackRatio="0" InputRotation="0" OutputRotation="0" Modulation="1" ModDepth="0" ModRate="1" ModChannelOffset="1" Interpolation="1" DispersionSpread="20" DispersionFreq="200" Dispersion="0" DiffusionSpread="20" DiffusionAmount="0.2" Diffusion="0" CrusherFreq="9" CrusherBits="16" Crusher="0" Filtering="1" DuckerThreshold="-10" DuckerAttack="1" DuckerHold="1" DuckerDecay="200.00002" DuckerAttenuation="20" DuckerBypass="1">
+                        <Properties PresetPath="$Resource/resource/FactoryPresets/FX/Dual Delay X/01 Classic/Basic Mono 04.preset"/>
+                    </DualDelayX>
+                </Inserts>
+                <BusRouters/>
+                <Keygroups>
+                    <Keygroup Name="Keygroup 0" Bypass="0" Gain="1.1424044" Pan="0" DisplayName="Keygroup 1" OutputName="" ExclusiveGroup="0" LowKey="0" HighKey="127" LowVelocity="1" HighVelocity="127" LowKeyFade="0" HighKeyFade="0" LowVelocityFade="0" HighVelocityFade="0" FadeCurve="2" TriggerMode="0" TriggerSync="0" TriggerRule="0" LatchTrigger="0" FXPostGain="0" BypassInsertFX="0">
+                        <Connections>
+                            <SignalConnection Name="AmpEnvMod" Ratio="1" Source="Amp. Env" Destination="Gain" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                        </Connections>
+                        <ControlSignalSources>
+                            <AnalogADSR Name="Amp. Env" Bypass="0" AttackTime="0.022866178" DecayTime="0.0011850487" KeyToDecay="0" KeyToAttack="0" VelToDecay="0" Punch="0" VelToAttack="0" DynamicRange="20" SustainLevel="0.76959985" ReleaseTime="0.070141718" TriggerMode="0" InvertVelocity="0" AttackDecayMode="0" DisplayName="Amp. Env">
+                                <Properties PresetPath=""/>
+                            </AnalogADSR>
+                        </ControlSignalSources>
+                        <BusRouters/>
+                        <Oscillators>
+                            <WaveTableOscillator Name="Oscillator" Bypass="0" WavetablePath="$FalconResources.ufs/Samples/Wavetables/X-Math/Pulse Sweep.wav" StartPhase="0" PhaseDistortionAmount="0" PhaseDistortionMode="3" Spread="0.1" DetuneMode="0" WaveIndex="0.039999999" WaveIndexSpread="0" StereoSpread="0.1" StereoSpreadMode="1" NumOscs="1" FadeMipMap="0" FadeWaveIndex="1" Stereo="0" PhaseSpread="1" EnableFM="1" FMDepth="0.1" FMRatio="0" FMRatioFine="0" FMRatioMode="1" FMFreq="0.1" FMFixedFreq="0" FMFreqMultiplier="3" CoarseTune="0" FineTune="0" Gain="1" Pitch="0" NoteTracking="1" BaseNote="60" DisplayName="Oscillator 1">
+                                <Connections>
+                                    <SignalConnection Name="PitchBendMod" Ratio="2" Source="@PitchBend" Destination="Pitch" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                                </Connections>
+                                <Properties PresetPath=""/>
+                            </WaveTableOscillator>
+                        </Oscillators>
+                    </Keygroup>
+                </Keygroups>
+            </Layer>
+        </Layers>
+    </Program>
+    <NeededFS Source="C:/ProgramData/UVI/Falcon/FalconResources.ufs"/>
+</UVI4>
