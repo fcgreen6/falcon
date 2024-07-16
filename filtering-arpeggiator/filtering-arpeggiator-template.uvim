@@ -1,0 +1,59 @@
+<UVI4>
+    <Engine Name="" Bypass="0" SyncToHost="1" GlobalTune="440" Tempo="103.448" AutoPlay="1" DisplayName="filtering-arpeggiator-template" MeterNumerator="4" MeterDenominator="4">
+        <Properties PerformancePath="C:/development/falcon/filtering-arpeggiator/filtering-arpeggiator-template.uvim"/>
+        <Synth Name="uvi" Bypass="0" Gain="1" Pan="0" DisplayName="Master" OutputName="" BypassInsertFX="0">
+            <EventProcessors>
+                <ScriptProcessor Name="EventProcessor0" Bypass="0" B1="0" B2="0" B3="0" B4="1" B5="0" B6="0" B7="0" B8="0" B9="0" B10="0" B11="0" B12="0" B13="0" B14="0" B15="0" B16="0" B17="0" B18="0" B19="0" B20="0" B21="0" B22="0" B23="0" B24="0" B25="0" B26="0" B27="0" B28="0" B29="0" B30="0" B31="0" B32="0" lengthBox="4" startBox="0" endBox="0" subdivideMenu="1" panBox="0" velocityBox="100" offsetBox="0" noteActive="0" effectMenu1="1" filterOn1="0" cutoff1="1000" resonance1="0" reverbOn1="0" time1="0" damp1="0" mix1="0" effectMenu2="1" filterOn2="0" cutoff2="1000" resonance2="0" reverbOn2="0" time2="0" damp2="0" mix2="0" effectMenu3="1" filterOn3="0" cutoff3="1000" resonance3="0" reverbOn3="0" time3="0" damp3="0" mix3="0" API_version="21">
+                    <Properties ScriptPath="./main.lua"/>
+                    <script><![CDATA[ui = require("ui");
+
+ui:CreateUserInterface();
+--ui:Refresh();
+
+function OnNote(event)
+end
+
+function OnSave()
+end
+
+function OnLoad(data)
+
+    ui:Load(data);
+end]]></script>
+                    <ScriptData/>
+                </ScriptProcessor>
+            </EventProcessors>
+            <Inserts>
+                <Retro Name="InsertFX0" Bypass="1" Freq="40" Q="0" KeyTracking="0" Mode="0"/>
+                <FilteredReverb Name="InsertFX1" Bypass="1" DecayTime="0" Cutoff="0" HighDamp="0" Mix="0.50320005"/>
+                <Retro Name="InsertFX2" Bypass="1" Freq="1000" Q="0" KeyTracking="0" Mode="0"/>
+                <FilteredReverb Name="InsertFX3" Bypass="1" DecayTime="2" Cutoff="0" HighDamp="0" Mix="0.5"/>
+                <Retro Name="InsertFX4" Bypass="1" Freq="1000" Q="0" KeyTracking="0" Mode="0"/>
+                <FilteredReverb Name="InsertFX5" Bypass="1" DecayTime="2" Cutoff="0" HighDamp="0" Mix="0.5"/>
+            </Inserts>
+            <Auxs>
+                <AuxEffect Name="Aux0" Bypass="0" Gain="1" Pan="0" PreInsert="1" DisplayName="Aux 1"/>
+                <AuxEffect Name="Aux1" Bypass="0" Gain="1" Pan="0" PreInsert="1" DisplayName="Aux 2"/>
+                <AuxEffect Name="Aux2" Bypass="0" Gain="1" Pan="0" PreInsert="1" DisplayName="Aux 3"/>
+                <AuxEffect Name="Aux3" Bypass="0" Gain="1" Pan="0" PreInsert="1" DisplayName="Aux 4"/>
+            </Auxs>
+            <Children>
+                <Part Name="Part 0" Bypass="0" Gain="1" Pan="0" Mute="0" MidiMute="0" Solo="0" DisplayName="Part 1" CoarseTune="0" FineTune="0" TransposeOctaves="0" TransposeSemiTones="0" OutputName="" ExclusiveGroup="0" MidiInput="0" MidiChannel="0" LowKey="0" HighKey="127" LowVelocity="1" HighVelocity="127" LowKeyFade="0" HighKeyFade="0" LowVelocityFade="0" HighVelocityFade="0" RestrictVelocityRange="0" RestrictKeyRange="0" Streaming="1" BypassInsertFX="0">
+                    <Connections>
+                        <SignalConnection Name="SignalConnection 1" Ratio="1" Source="@MIDI CC 11" Destination="Gain" Mapper="" ConnectionMode="0" Bypass="0" Inverted="0"/>
+                        <SignalConnection Name="SignalConnection 0" Ratio="1" Source="@MIDI CC 7" Destination="Gain" Mapper="" ConnectionMode="1" Bypass="0" Inverted="0" Offset="0" SignalConnectionVersion="1"/>
+                        <SignalConnection Name="SignalConnection 0" Ratio="1" Source="@MIDI CC 10" Destination="Pan" Mapper="" ConnectionMode="1" Bypass="0" Inverted="0" Offset="0" SignalConnectionVersion="1"/>
+                    </Connections>
+                    <Properties PartColour="ffa9a9a9"/>
+                    <ControlSignalSources/>
+                    <BusRouters>
+                        <BusRouter Name="AuxSend0" Bypass="0" Gain="0" Destination="../../Aux0" PreFader="0" BusRouterVersion="1"/>
+                        <BusRouter Name="AuxSend1" Bypass="0" Gain="0" Destination="../../Aux1" PreFader="0" BusRouterVersion="1"/>
+                        <BusRouter Name="AuxSend2" Bypass="0" Gain="0" Destination="../../Aux2" PreFader="0" BusRouterVersion="1"/>
+                        <BusRouter Name="AuxSend3" Bypass="0" Gain="0" Destination="../../Aux3" PreFader="0" BusRouterVersion="1"/>
+                    </BusRouters>
+                </Part>
+            </Children>
+        </Synth>
+    </Engine>
+</UVI4>
