@@ -73,9 +73,6 @@ function ui.CreateUserInterface(self)
     -- Size of user interface.
     setSize(720, 480);
 
-    if self._sequence == nil then
-    
-        print("Gay if here")
         -- Default sequence object.
         self._sequence = {
             meta = {
@@ -92,7 +89,7 @@ function ui.CreateUserInterface(self)
                 copiedNote = nil -- Data member which will store a copied note.
             }
         };
-    end
+        
     ------------------------------------------------------------------------------------------------------
     -- Synth Effect Elements
     ------------------------------------------------------------------------------------------------------
