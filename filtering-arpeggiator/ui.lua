@@ -73,23 +73,26 @@ function ui.CreateUserInterface(self)
     -- Size of user interface.
     setSize(720, 480);
 
-    -- Default sequence object.
-    self._sequence = {
-        meta = {
-            displayPosition = 1, -- First beat displayed by the user interface.
-            beats = 0, -- Number of beats in the sequence.
-            start = 0, -- The beat that the sequence starts on.
-            stop = 0, -- The beat that the sequence stops on.
-            consecutive = false, -- If selected notes are consecutive this parameter is set to true.
-            consolodate = false, -- If selected notes can be consolodated this parameter is set to true.
-            maxSubdivide = -1, -- The largest note a selection can be subdivided into.
-            displayNoteIndex = -1, -- Index of the note displayed on the user interface.
-            selectedIndices = {}, -- Table which records notes in the sequence selected by the user.
-            effectTypes = {}, -- Table which records the effect types selected by the user. Coresponds to the value of effect menus.
-            copiedNote = nil -- Data member which will store a copied note.
-        }
-    };
-
+    if self._sequence == nil then
+    
+        print("Gay if here")
+        -- Default sequence object.
+        self._sequence = {
+            meta = {
+                displayPosition = 1, -- First beat displayed by the user interface.
+                beats = 0, -- Number of beats in the sequence.
+                start = 0, -- The beat that the sequence starts on.
+                stop = 0, -- The beat that the sequence stops on.
+                consecutive = false, -- If selected notes are consecutive this parameter is set to true.
+                consolodate = false, -- If selected notes can be consolodated this parameter is set to true.
+                maxSubdivide = -1, -- The largest note a selection can be subdivided into.
+                displayNoteIndex = -1, -- Index of the note displayed on the user interface.
+                selectedIndices = {}, -- Table which records notes in the sequence selected by the user.
+                effectTypes = {}, -- Table which records the effect types selected by the user. Coresponds to the value of effect menus.
+                copiedNote = nil -- Data member which will store a copied note.
+            }
+        };
+    end
     ------------------------------------------------------------------------------------------------------
     -- Synth Effect Elements
     ------------------------------------------------------------------------------------------------------
@@ -258,6 +261,26 @@ function ui.CreateUserInterface(self)
 
     self._lengthBox.changed = function()
 
+        if self._lengthBox.value ~= 0 then
+
+            self._startBox:setRange(1, self._lengthBox.value);
+            self._startBox:setValue(1, false);
+            self._sequence.meta.start = 1;
+
+            self._endBox:setRange(1, self._lengthBox.value);
+            self._endBox:setValue(self._lengthBox.value, false);
+            self._sequence.meta.stop = self._lengthBox.value;
+        else
+
+            self._startBox:setRange(0, 0);
+            self._startBox:setValue(0, false);
+            self._sequence.meta.start = 0;
+
+            self._endBox:setRange(0, 0);
+            self._endBox:setValue(0, false);
+            self._sequence.meta.stop = 0;
+        end
+
         if self._lengthBox.value > self._sequence.meta.beats then
 
             for i = self._sequence.meta.beats, self._lengthBox.value - 1 do
@@ -382,11 +405,25 @@ function ui.CreateUserInterface(self)
     self._startBox.height = 34;
     self._startBox.width = 141;
 
+    self._startBox.changed = function()
+
+        self._sequence.meta.start = self._startBox.value;
+        self._endBox:setRange(self._startBox.value, self._sequence.meta.beats);
+        self:Refresh();
+    end
+
     -- Box where the end of the sequence is defined.
     self._endBox = NumBox("endBox", 0, 0, 0, true);
     self._endBox.pos = {193, 211};
     self._endBox.height = 34;
     self._endBox.width = 141;
+
+    self._endBox.changed = function()
+
+        self._sequence.meta.stop = self._endBox.value;
+        self._startBox:setRange(1, self._endBox.value);
+        self:Refresh();
+    end
 
     -- Button which will consolodate subdivided notes into a single note.
     self._consolodateButton = Button("consolodateButton");
@@ -1234,6 +1271,9 @@ end
 
 function ui.ChangeEffects(self, effectIndex)
 
+    self._pasteButton.enabled = false;
+    self._sequence.meta.copiedNote = nil;
+
     if (self._effectMenus[effectIndex].value == 2) or (self._effectMenus[effectIndex].value == 3) then
         
         self._filterKnobs[effectIndex].active.visible = true;
@@ -1381,10 +1421,76 @@ function ui.UpdateSelected(self, key, value)
     end
 end
 
-function ui.Save()
+-- After testing, the UVI onSave callback does not work when the sequence metadata feild is defined.
+-- Because of this, I have to put the sequence metadata at the end of the saved table.
+function ui.Save(self)
+
+    local saveData = {};
+    for i = 1, #self._sequence do
+
+        saveData[i] = self._sequence[i];
+    end
+
+    saveData[#saveData + 1] = self._sequence.meta;
+
+    return saveData;
 end
 
-function ui.load(data)
+function ui.Load(self, data)
+
+    for i = 1, #data - 1 do
+
+        self._sequence[i] = data[i];
+    end
+
+    self._sequence.meta = data[#data];
+
+    self._sequence.meta.copiedNote = {};
+
+    self._lengthBox:setValue(self._sequence.meta.beats, false);
+
+    if self._sequence.meta.beats == 0 then
+
+        self._startBox:setRange(0, 0)
+        self._endBox:setRange(0, 0);
+
+        self._startBox:setValue(0, false);
+        self._endBox:setValue(0, false);
+    else
+
+        self._startBox:setRange(1, self._sequence.meta.stop);
+        self._endBox:setRange(self._sequence.meta.start, self._sequence.meta.beats);
+
+        self._startBox:setValue(self._sequence.meta.start, false);
+        self._endBox:setValue(self._sequence.meta.stop, false);
+    end
+
+    for i = 1, 3 do
+
+        if self._sequence.meta.effectTypes[i] == 2 then
+
+            self._effectMenus[i]:setValue(2, false);
+            self._filterKnobs[i].active.visible = true;
+            self._filterKnobs[i].cutoff.visible = true;
+            self._filterKnobs[i].resonance.visible = true;
+        elseif self._sequence.meta.effectTypes[i] == 3 then
+
+            self._effectMenus[i]:setValue(3, false);
+            self._filterKnobs[i].active.visible = true;
+            self._filterKnobs[i].cutoff.visible = true;
+            self._filterKnobs[i].resonance.visible = true;
+        elseif self._sequence.meta.effectTypes[i] == 4 then
+
+            self._effectMenus[i]:setValue(4, false);
+            self._reverbKnobs[i].active.visible = true;
+            self._reverbKnobs[i].time.visible = true;
+            self._reverbKnobs[i].damp.visible = true;
+            self._reverbKnobs[i].mix.visible = true;
+        end
+    end
+
+    self:UpdateMetadata();
+    self:Refresh();
 end
 
 return ui;

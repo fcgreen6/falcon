@@ -3,13 +3,17 @@ ui = require("ui");
 ui:CreateUserInterface();
 --ui:Refresh();
 
-function OnNote(event)
+function onNote(event)
+
+    print("I am gay")
 end
 
-function OnSave()
+function onSave()
+
+    return { ui = ui:Save() };
 end
 
-function OnLoad(data)
+function onLoad(data)
 
-    ui:Load(data);
+    ui:Load(data.ui);
 end
