@@ -3,24 +3,135 @@
         <Properties PerformancePath="C:/development/falcon/filtering-arpeggiator/filtering-arpeggiator-template.uvim"/>
         <Synth Name="uvi" Bypass="0" Gain="1" Pan="0" DisplayName="Master" OutputName="" BypassInsertFX="0">
             <EventProcessors>
-                <ScriptProcessor Name="EventProcessor0" Bypass="0" B1="0" B2="0" B3="0" B4="1" B5="0" B6="0" B7="0" B8="0" B9="0" B10="0" B11="0" B12="0" B13="0" B14="0" B15="0" B16="0" B17="0" B18="0" B19="0" B20="0" B21="0" B22="0" B23="0" B24="0" B25="0" B26="0" B27="0" B28="0" B29="0" B30="0" B31="0" B32="0" lengthBox="4" startBox="0" endBox="0" subdivideMenu="1" panBox="0" velocityBox="100" offsetBox="0" noteActive="0" effectMenu1="1" filterOn1="0" cutoff1="1000" resonance1="0" reverbOn1="0" time1="0" damp1="0" mix1="0" effectMenu2="1" filterOn2="0" cutoff2="1000" resonance2="0" reverbOn2="0" time2="0" damp2="0" mix2="0" effectMenu3="1" filterOn3="0" cutoff3="1000" resonance3="0" reverbOn3="0" time3="0" damp3="0" mix3="0" API_version="21">
+                <ScriptProcessor Name="EventProcessor0" Bypass="0" B1="0" B2="0" B3="0" B4="0" B5="0" B6="0" B7="0" B8="0" B9="0" B10="0" B11="0" B12="0" B13="0" B14="0" B15="0" B16="0" B17="0" B18="0" B19="0" B20="0" B21="0" B22="0" B23="0" B24="0" B25="0" B26="0" B27="0" B28="0" B29="0" B30="0" B31="0" B32="0" lengthBox="0" startBox="0" endBox="0" subdivideMenu="1" panBox="0" velocityBox="100" offsetBox="0" noteActive="0" effectMenu1="1" filterOn1="0" cutoff1="1000" resonance1="0" reverbOn1="0" time1="0" damp1="0" mix1="0" effectMenu2="1" filterOn2="0" cutoff2="1000" resonance2="0" reverbOn2="0" time2="0" damp2="0" mix2="0" effectMenu3="1" filterOn3="0" cutoff3="1000" resonance3="0" reverbOn3="0" time3="0" damp3="0" mix3="0" API_version="21">
                     <Properties ScriptPath="./main.lua"/>
                     <script><![CDATA[ui = require("ui");
 
 ui:CreateUserInterface();
---ui:Refresh();
 
-function OnNote(event)
+function onEvent(event)
+
+    if ui._sequence[1] == nil then
+
+        return;
+    end
+
+    local sequenceStartIndex = 1;
+
+    local beatCounter = ui._sequence[sequenceStartIndex].duration;
+    while beatCounter <= ui._sequence.meta.start - 1 do
+
+        sequenceStartIndex = sequenceStartIndex + 1;
+        beatCounter = beatCounter + ui._sequence[sequenceStartIndex].duration;
+    end
+
+    local sequenceStartDuration = ui._sequence[sequenceStartIndex].duration - (beatCounter - ui._sequence.meta.start - 1);
+    local sequenceEndIndex = sequenceStartIndex;
+
+    while beatCounter < ui._sequence.meta.stop do 
+
+        sequenceEndIndex = sequenceEndIndex + 1;
+        beatCounter = beatCounter + ui._sequence[sequenceEndIndex].duration;
+    end
+
+    local sequenceEndDuration = beatCounter - (beatCounter - ui._sequence.meta.stop);
+
+    local initStart = ui._sequence.meta.start;
+    local initEnd = ui._sequence.meta.stop;
+    local initLength = #ui._sequence;
+    ui._sequence.meta.positionsChanged = false;
+
+    local noteIndex = #ui._sequence;
+    while isNoteHeld() do
+
+        if initStart ~= ui._sequence.meta.start then
+
+            break;
+        elseif initEnd ~= ui._sequence.meta.stop then
+
+            break;
+        elseif initLength ~= #ui._sequence then
+
+            break;
+        elseif ui._sequence.meta.positionsChanged then
+
+            break;
+        end
+
+        local notePlayed = {};
+
+        if noteIndex == #ui._sequence then
+
+            noteIndex = sequenceStartIndex;
+            notePlayed.duration = getBeatDuration() * sequenceStartDuration;
+        elseif noteIndex == #ui._sequence - 1 then
+
+            noteIndex = noteIndex + 1;
+            notePlayed.duration = getBeatDuration() * sequenceEndDuration;
+        else
+
+            noteIndex = noteIndex + 1;
+            notePlayed.duration = getBeatDuration() * ui._sequence[noteIndex].duration;
+        end
+
+        for i = 1, 3 do
+
+            if (ui._sequence.meta.effectTypes[i] == 2) or (ui._sequence.meta.effectTypes[i] == 3) then
+
+                if ui._sequence.meta.effectTypes[i] == 2 then
+
+                    ui._synthFilters[i]:setParameter("Mode", 1);
+                else
+
+                    ui._synthFilters[i]:setParameter("Mode", 0);
+                end
+
+                ui._synthFilters[i]:setParameter("Bypass", ui._sequence[noteIndex].effects[1]);
+                ui._synthFilters[i]:setParameter("Freq", ui._sequence[noteIndex].effects[2]);
+                ui._synthFilters[i]:setParameter("Resonance", ui._sequence[noteIndex].effects[3]);
+
+                ui._synthReverbs[i]:setParameter("Bypass", true);
+            elseif ui._sequence.meta.effectTypes[i] == 4 then
+
+                ui._synthReverbs[i]:setParameter("Bypass", ui._sequence[noteIndex].effects[1]);
+                ui._synthReverbs[i]:setParameter("DecayTime", ui._sequence[noteIndex].effects[2]);
+                ui._synthReverbs[i]:setParameter("HighDamp", ui._sequence[noteIndex].effects[3]);
+                ui._synthReverbs[i]:setParameter("Mix", ui._sequence[noteIndex].effects[4]);
+
+                ui._synthFilters[i]:setParameter("Bypass", true);
+            else
+
+                ui._synthReverbs[i]:setParameter("Bypass", true);
+                ui._synthFilters[i]:setParameter("Bypass", true);
+            end
+        end
+
+        --if ui._sequence[i].active then
+
+            wait(notePlayed.duration);
+        --else
+
+            notePlayed.note = event.note + ui._sequence[noteIndex].offset;
+            notePlayed.velocity = ui._sequence[noteIndex].velocity;
+            notePlayed.pan = ui._sequence[noteIndex].pan;
+
+            playNote(notePlayed);
+            wait(notePlayed.duration);
+        --end
+    end
 end
 
-function OnSave()
+function onSave()
+
+    return { ui = ui:Save() };
 end
 
-function OnLoad(data)
+function onLoad(data)
 
-    ui:Load(data);
+    ui:Load(data.ui);
 end]]></script>
                     <ScriptData/>
+                    <state><![CDATA[{"ui":[{"copiedNote":[],"consecutive":false,"beats":0,"displayNoteIndex":-1,"positionsChanged":false,"maxSubdivide":-1,"selectedIndices":[],"effectTypes":[],"start":0,"consolodate":false,"stop":0,"displayPosition":1}]}]]></state>
                 </ScriptProcessor>
             </EventProcessors>
             <Inserts>

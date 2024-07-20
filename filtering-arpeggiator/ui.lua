@@ -82,6 +82,7 @@ function ui.CreateUserInterface(self)
                 stop = 0, -- The beat that the sequence stops on.
                 consecutive = false, -- If selected notes are consecutive this parameter is set to true.
                 consolodate = false, -- If selected notes can be consolodated this parameter is set to true.
+                positionsChanged = false, -- Set to true when the user rearranges notes in the sequence.
                 maxSubdivide = -1, -- The largest note a selection can be subdivided into.
                 displayNoteIndex = -1, -- Index of the note displayed on the user interface.
                 selectedIndices = {}, -- Table which records notes in the sequence selected by the user.
@@ -89,7 +90,7 @@ function ui.CreateUserInterface(self)
                 copiedNote = nil -- Data member which will store a copied note.
             }
         };
-        
+
     ------------------------------------------------------------------------------------------------------
     -- Synth Effect Elements
     ------------------------------------------------------------------------------------------------------
@@ -192,13 +193,16 @@ function ui.CreateUserInterface(self)
 
                             if i == 1 then
 
-                                self._sequence.meta.displayNoteIndex = self._sequence.meta.selectedIndices[2];
-                            elseif self._sequence.meta.selectedIndices[1] then
+                                if self._sequence.meta.selectedIndices[2] then
+                                
+                                    self._sequence.meta.displayNoteIndex = self._sequence.meta.selectedIndices[2];
+                                else
 
-                                self._sequence.meta.displayNoteIndex = self._sequence.meta.selectedIndices[1];
+                                    self._sequence.meta.displayNoteIndex = -1;
+                                end
                             else
 
-                                self._sequence.meta.displayNoteIndex = -1;
+                                self._sequence.meta.displayNoteIndex = self._sequence.meta.selectedIndices[1];
                             end
                         end
 
@@ -298,7 +302,7 @@ function ui.CreateUserInterface(self)
                         defaultNote.effects[j] = { false, 1000, 0.0 };
                     elseif self._sequence.meta.effectTypes[j] == 4 then
                         
-                        defaultNote.effects[j] = { false, 2.0, 0.0, 50.0 };
+                        defaultNote.effects[j] = { false, 2.0, 0.0, 0.5 };
                     else
 
                         defaultNote.effects[j] = nil;
@@ -360,6 +364,8 @@ function ui.CreateUserInterface(self)
 
     self._moveNoteLeft.changed = function()
 
+        self._sequence.meta.positionsChanged = true;
+
         local leftNoteCopy = self:CopyNote(self._sequence.meta.selectedIndices[1] - 1);
         table.remove(self._sequence, self._sequence.meta.selectedIndices[1] - 1);
 
@@ -381,6 +387,8 @@ function ui.CreateUserInterface(self)
     self._moveNoteRight.width = 46;
 
     self._moveNoteRight.changed = function()
+
+        self._sequence.meta.positionsChanged = true;
 
         local rightNoteCopy = self:CopyNote(self._sequence.meta.selectedIndices[#self._sequence.meta.selectedIndices] + 1);
         table.remove(self._sequence, self._sequence.meta.selectedIndices[#self._sequence.meta.selectedIndices] + 1);
@@ -631,7 +639,7 @@ function ui.CreateUserInterface(self)
         self._filterKnobs[i].cutoff.enabled = false;
         self._filterKnobs[i].cutoff.visible = false;
 
-        self._filterKnobs[i].resonance = Knob{"resonance" .. i, 0.0, 0.0, 100.0, false};
+        self._filterKnobs[i].resonance = Knob{"resonance" .. i, 0.0, 0.0, 1.0, false};
         self._filterKnobs[i].resonance.pos = {647, 313 + (55 * (i - 1))};
         self._filterKnobs[i].resonance.height = 30;
         self._filterKnobs[i].resonance.width = 30;
@@ -654,14 +662,14 @@ function ui.CreateUserInterface(self)
         self._reverbKnobs[i].time.enabled = false;
         self._reverbKnobs[i].time.visible = false;
 
-        self._reverbKnobs[i].damp = Knob{"damp" .. i, 0.0, 0.0, 100.0, false};
+        self._reverbKnobs[i].damp = Knob{"damp" .. i, 0.0, 0.0, 1.0, false};
         self._reverbKnobs[i].damp.pos = {542, 313 + (55 * (i - 1))};
         self._reverbKnobs[i].damp.height = 30;
         self._reverbKnobs[i].damp.width = 30;
         self._reverbKnobs[i].damp.enabled = false;
         self._reverbKnobs[i].damp.visible = false;
 
-        self._reverbKnobs[i].mix = Knob{"mix" .. i, 0.0, 0.0, 100.0, false};
+        self._reverbKnobs[i].mix = Knob{"mix" .. i, 0.0, 0.0, 1.0, false};
         self._reverbKnobs[i].mix.pos = {647, 313 + (55 * (i - 1))};
         self._reverbKnobs[i].mix.height = 30;
         self._reverbKnobs[i].mix.width = 30;
@@ -1161,7 +1169,7 @@ function ui.DisableAll(self)
             self._reverbKnobs[i].damp:setValue(0.0, false);
             self._reverbKnobs[i].damp.enabled = false;
 
-            self._reverbKnobs[i].mix:setValue(50.0, false);
+            self._reverbKnobs[i].mix:setValue(0.5, false);
             self._reverbKnobs[i].mix.enabled = false;
         end
     end
@@ -1310,7 +1318,7 @@ function ui.ChangeEffects(self, effectIndex)
 
         for i = 1, #self._sequence do
 
-            self._sequence[i].effects[effectIndex] = { false, 2.0, 0.0, 50.0 };
+            self._sequence[i].effects[effectIndex] = { false, 2.0, 0.0, 0.5 };
         end
 
         self._sequence.meta.effectTypes[effectIndex] = self._effectMenus[effectIndex].value;
