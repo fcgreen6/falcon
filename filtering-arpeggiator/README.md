@@ -1,4 +1,4 @@
-#filtering-sequencer
+# filtering-sequencer
 - A multi where Falcon programs can be loaded and controlled by a sequencer script.
 - The script is located on the master node so that multiple programs can be controlled at once.
 
