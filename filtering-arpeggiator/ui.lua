@@ -522,18 +522,18 @@ function ui.CreateUserInterface(self)
 
         -- If the subdivide menu is activated, 1/4 beat subdivision is always available.
         self._subdivideMenu:addItem("--Select Subdivision--")
-        self._subdivideMenu:addItem("1/4 Beats");
+        self._subdivideMenu:addItem("16th Notes");
 
         -- Determine if 1/2 beat subdivision is available.
         if self._sequence.meta.maxSubdivide >= 0.5 then
 
-            self._subdivideMenu:addItem("1/2 Beats");
+            self._subdivideMenu:addItem("8th Notes");
         end
 
         -- Determine if the selection can be divided into beats.
         if self._sequence.meta.maxSubdivide == 1.0 then
 
-            self._subdivideMenu:addItem("Beats");
+            self._subdivideMenu:addItem("Quarter Notes");
         end
     end
 
@@ -1007,13 +1007,19 @@ function ui.CreateUserInterface(self)
     -- Ignoring the duration of the copied note, pastes a copied note to all selected indices.
     self._pasteButton.changed = function()
 
+        -- The copied note is temporarally added to the end of the sequence so that it is
+        -- compatable with the CopyNote function.
+        self._sequence[#self._sequence + 1] = self._sequence.meta.copiedNote;
+
         for i = 1, #self._sequence.meta.selectedIndices do
 
             local currentDuration = self._sequence[self._sequence.meta.selectedIndices[i]].duration;
 
-            self._sequence[self._sequence.meta.selectedIndices[i]] = self._sequence.meta.copiedNote;
+            self._sequence[self._sequence.meta.selectedIndices[i]] = self:CopyNote(#self._sequence);
             self._sequence[self._sequence.meta.selectedIndices[i]].duration = currentDuration;
         end
+
+        self._sequence[#self._sequence] = nil;
 
         self:Refresh();
     end
@@ -1085,7 +1091,7 @@ function ui.UpdateMetadata(self)
     elseif (smallestNoteDuration == 1.5) or (smallestNoteDuration == 1.0) then
 
         self._sequence.meta.maxSubdivide = 0.5;
-    elseif (smallestNoteDuration == 0.5) or (smallestNoteDuration == 0.75) then
+    elseif (smallestNoteDuration == 0.5) or (smallestNoteDuration == 0.75) or (smallestNoteDuration == 1.25) then
 
         self._sequence.meta.maxSubdivide = 0.25;
     else
