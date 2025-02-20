@@ -1,12 +1,50 @@
-# filtering-sequencer
-- A multi where Falcon programs can be loaded and controlled by a sequencer script.
-- The script is located on the master node so that multiple programs can be controlled at once.
+# **filtering-sequencer**
 
-- Sequencer Features:
-  - Sequences are controlled by MIDI notes received by Falcon. The note played and held is considered the root note of the sequence.
-  - Multiple notes can be held at once, however, this is not how the sequencer was intended to be used. Because of this, when multiple notes are held, new and unpredictable sequences occur. It can be interesting to experement with this.
-  - The sequencer controls up to three effects located on the master node of the multi. The user can select a high pass filter, low pass filter, or reverb as effects.
-  - The sequence has a maximum length of thirty two beats. Notes in the sequence have a maximum duration of two beats and a minimum duration of 1/4 beats.
-  - For each note in the sequence, velocity, panning, offset from the root note, and bypass can be controled individually.
-  - For each note in the sequence, the parameters of selected effects can be controlled individually (bypass, cutoff, resonance, etc.).
-  - Changes can be made to multiple notes at once when multiple notes are selected. In this case, only the adjusted parameter is changed across all selected notes.
+
+## **Description:**
+
+- **Demo Video:** *Coming soon...*
+
+- An experemental music sequencer created within the synthesizer UVI Falcon. The sequencer operates within the main node of Falcon's tree structure, allowing multiple instruments located on subsequent nodes to be controlled.
+
+- Supports musical sequences up to thirty two beats in length. Beats can be consolodated and subdivided in order to create unique musical progressions.
+
+- Each note of a sequence can be individually controled. Adjustable parameters include note on/off, transpose, panning (not compatable with certain instruments), velocity, and any added effect parameters.
+
+  ![music sequencer image](demo-images/image1.png)
+
+
+## **How to Run:**
+
+- **Purchase UVI Falcon:** Purchase the synthesizer UVI Falcon (Available at: https://www.uvi.net/falcon.html).
+
+- **Clone Repository:** Clone the falcon repository into a directory of your choice.
+
+- **Set Up a MIDI Controller:** Connect UVI Falcon to a MIDI controller.
+
+- **Load Sequencer Multi:** Navigate to the filtering-arpeggiator-template multi located within the cloned repository. Load the multi into UVI Falcon.
+
+- **Add an Instrument to the Sequencer:** Using Falcon's tree visualizer as a reference, add an instrument to the "Part 1" node. To add more instrument to the sequence, create more parts.
+
+  ![music sequencer image](demo-images/image2.png)
+
+
+## **User Manual:**
+
+- **Sequence Navigation and Selection Panel:**
+
+  - **General Description:** The sequence navigation and selection pannel allows the user to efficiently move within a created sequence and select which notes they wish to modify.
+ 
+      ![music sequencer image](demo-images/image3.png)
+
+  - **Note Selection:** To select a note, simply click the desired note on the display. Selected notes will be displayed in blue. To deselect a note, click an already selected note on the display. Alternativley, the select all and deselect all buttons can be used to target all notes in the sequence.
+ 
+  - **Arrow Buttons:** The arrow buttons, pictured to the left and right of the display panel, can be used to navigate to parts of the sequence that are not visible. This is due to the fact that the display panel only shows eight beats at a single time. The smaller arrow buttons move the display one beat in their respective direction. The larger arrow buttons move the display four beats in their respective direction.
+
+- **Sequence Structure Pannel:**
+
+  - **General Description:** The sequence structure pannel is used to arrange sequences in interesting ways through subdivision and consolodation.
+ 
+    ![music sequencer image](demo-images/image4.png)
+
+
