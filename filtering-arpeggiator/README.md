@@ -84,7 +84,7 @@
     ![music sequencer image](demo-images/image7.png)
 
 
-##**Project Reflection:**
+## **Project Reflection:**
 
   - **My Experience:** I enjoyed both creating and using this utility. During the creation process, I gained a basic understanding of scripting within UVI Falcon and applied my computer science knowledge to a unique project. Once I finalized the sequencer, I was able to produce unique music that I wouldn't have been inspired to create otherwise.
   
