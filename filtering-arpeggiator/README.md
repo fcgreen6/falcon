@@ -61,7 +61,7 @@
 
   - **General Description:** The note modification panel can be used modify the parameters of individual notes. It is important to note that adjusted parameters are applied to all selected notes.
 
-  ![music sequencer image](demo-images/image5.png)
+    ![music sequencer image](demo-images/image5.png)
 
   - **Note On/Off:** The green button is the note on/off button. When turned off, affected notes are not played by the sequencer.
 
