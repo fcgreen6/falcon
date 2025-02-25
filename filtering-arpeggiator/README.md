@@ -7,7 +7,7 @@
 
 - An experemental music sequencer created within the synthesizer UVI Falcon. The sequencer operates within the main node of Falcon's tree structure, allowing multiple instruments located on subsequent nodes to be controlled.
 
-- Supports musical sequences up to thirty two beats in length. Beats can be consolodated and subdivided in order to create unique musical progressions.
+- Supports musical sequences up to thirty two beats in length. Beats can be consolidated and subdivided in order to create unique musical progressions.
 
 - Each note of a sequence can be individually controled. Adjustable parameters include note on/off, transpose, panning (not compatable with certain instruments), velocity, and any added effect parameters.
 
